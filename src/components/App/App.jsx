@@ -53,7 +53,7 @@ export default class App extends Component {
               return {
                 query: [...prevState.query, ...images],
                 status: 'resolved',
-                showBtn: nextPage < Math.ceil(totalHits / 12),
+                showBtn: nextPage < Math.ceil(totalHits / 20),
               };
             });
           } else {
