@@ -8,7 +8,9 @@ function Button({ handleClickBtn }) {
     </button>
   );
 }
+
 Button.propTypes = {
   handleClickBtn: PropTypes.func.isRequired,
 };
+
 export default Button;

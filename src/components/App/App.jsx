@@ -21,6 +21,7 @@ export default class App extends Component {
     showModal: false,
     modalImg: '',
     error: null,
+    showBtn: false,
   };
 
   componentDidUpdate(_, prevState) {
@@ -37,23 +38,22 @@ export default class App extends Component {
       });
     }
 
-    if (prevQuery !== nextQuery) {
-      this.setState({ query: [], status: 'pending' });
-    }
-
     if (prevQuery !== nextQuery || prevPage !== nextPage) {
       pixabayApi
         .fetchQuery(nextQuery, nextPage)
-        .then(({ hits }) => {
-          const images = hits.map(({ id, webformatURL, largeImageURL, tags }) => {
-            return { id, webformatURL, largeImageURL, tags };
-          });
+        .then(({ hits, totalHits }) => {
+          const images = hits.map(
+            ({ id, webformatURL, largeImageURL, tags }) => {
+              return { id, webformatURL, largeImageURL, tags };
+            }
+          );
           // console.log(images);
           if (images.length > 0) {
             this.setState(prevState => {
               return {
                 query: [...prevState.query, ...images],
                 status: 'resolved',
+                showBtn: nextPage < Math.ceil(totalHits / 12),
               };
             });
           } else {
@@ -67,7 +67,7 @@ export default class App extends Component {
 
   handleSubmitInput = newQuery => {
     if (newQuery !== this.state.name) {
-      this.setState({ name: newQuery, page: 1, status: 'pending' });
+      this.setState({ name: newQuery, page: 1, status: 'pending', query: [] });
     }
   };
 
@@ -94,7 +94,8 @@ export default class App extends Component {
   };
 
   render() {
-    const { query, showModal, modalImg, modalAlt, error, status } = this.state;
+    const { query, showModal, modalImg, modalAlt, error, status, showBtn } =
+      this.state;
 
     if (status === 'idle') {
       return (
@@ -142,8 +143,11 @@ export default class App extends Component {
           )}
           <div>
             <Searchbar onSubmit={this.handleSubmitInput} />
-            <ImageGallery onClickImg={this.handleClickImg} query={this.state.query} />
-            <Button handleClickBtn={this.handleClickBtn} />
+            <ImageGallery
+              onClickImg={this.handleClickImg}
+              query={this.state.query}
+            />
+            {showBtn && <Button handleClickBtn={this.handleClickBtn} />}
           </div>
         </>
       );
